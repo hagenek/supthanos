@@ -1,6 +1,7 @@
 type TextInputProps = {
         onChangeFunc: (arg0: string) => void;
         inputValue: string;
+        placeholder: string;
     }
 
 export const PrimaryButton = ({onClick, children}) => {

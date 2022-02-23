@@ -1,40 +1,48 @@
 import type {NextPage} from 'next'
 import React, {useReducer} from "react";
 import {TextInput, PrimaryButton} from "./components"
-import {type} from "os";
 
 type User = {
     firstName: string;
     lastName: string;
+    email: string;
 }
 
-interface initialState {
+interface ReducerExampleState {
     counter: number;
-    users: User[];
+    users: any[];
     username: string;
     email: string;
 }
 
 const ReducerExample: NextPage = () => {
 
-    const initialState = {
+    const initialState: ReducerExampleState = {
         counter: 0,
-        users: [],
+        users: [{firstName: "Kalle", lastName: "Kanin"}],
         username: "",
         email: ""
-    };
+    }
 
-    function reducer(state, action) {
-        let newState;
+    type Action =
+        | { type: 'increase' }
+        | { type: 'decrease' }
+        | { type: 'addUser', payload: User }
+        | { type: 'updateUsername', payload: string }
+        | { type: 'updateEmail', payload: string }
+
+    function reducer(state: ReducerExampleState, action: Action): ReducerExampleState {
+        console.log(state)
+        let newState = state;
         switch (action.type) {
             case 'increase':
-                newState = {counter: state.counter + 1};
+                newState = {...state, counter: state.counter + 1};
                 break;
             case 'decrease':
-                newState = {counter: state.counter - 1};
+                newState = {...state, counter: state.counter - 1};
                 break;
             case 'addUser':
-                newState = {...state, users: state.users.push(action.payload)}
+                newState = {...state, users: [...state.users, action.payload]}
                 break;
             case 'updateUsername':
                 newState = {...state, username: action.payload};
@@ -46,32 +54,28 @@ const ReducerExample: NextPage = () => {
                 console.log("Something went wrong", action, state)
                 break;
         }
-        console.log("New state is:", state)
         return newState;
     }
 
     const [state, dispatch] = useReducer(reducer, initialState);
 
-    const handleInputChange = (text: string, typeOfAction: string) => {
+    const handleInputChange = (text: string, typeOfAction: any) => {
         dispatch({
             type: typeOfAction,
             payload: text
         })
     }
 
-    const dummyAddUserAction = {
-        type: 'addUser',
-        payload: {
-            firstName: "Georg",
-            lastName: "Ekeberg",
-            email: "dontspammepls@gmail.com"
+    const dummyAddUserAction = (firstName: string, lastName: string) => {
+        return {
+            type: 'addUser',
+            payload: {
+                firstName,
+                lastName,
+                email: "dontspammepls@gmail.com"
+            }
         }
     }
-
-    const action = {
-        type: 'increase'
-    };
-
 
     return (
         <div className="container mx-auto mt-4">
@@ -84,12 +88,14 @@ const ReducerExample: NextPage = () => {
                         </label>
                     </div>
                     <div className="md:w-2/3">
-                        <TextInput onChangeFunc={(text) => handleInputChange(text, "updateUsername")}
+                        <TextInput placeholder="username" onChangeFunc={(text) => handleInputChange(text, "updateUsername")}
                                    inputValue={state.username}/>
+                        <p>Username: {state.username}</p>
                     </div>
                     <div className="md:w-2/3">
-                        <TextInput onChangeFunc={(text) => handleInputChange(text, "updateEmail")}
-                                   inputValue={state.username}/>
+                        <TextInput placeholder="email" onChangeFunc={(text) => handleInputChange(text, "updateEmail")}
+                                   inputValue={state.email}/>
+                        <p>Email: {state.email}</p>
                     </div>
                 </div>
                 <div className="md:flex md:items-center mb-6">
@@ -105,8 +111,8 @@ const ReducerExample: NextPage = () => {
                     <div className="md:w-1/3"></div>
                     <div className="md:w-2/3">
                         <div>COUNT: {state.counter}</div>
-                        <PrimaryButton onClick={() => dispatch(dummyAddUserAction)}>
-                            Add todo
+                        <PrimaryButton onClick={() => dispatch(dummyAddUserAction(state.username, state.email))}>
+                            Add user
                         </PrimaryButton>
                     </div>
                 </div>

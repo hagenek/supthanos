@@ -1,16 +1,36 @@
 import type {NextPage} from 'next'
-import {useStore} from "./useStore";
 import create from "zustand";
 import React from "react";
-import { TextInput, PrimaryButton } from "./components"
+import {PrimaryButton, TextInput} from "./components"
 
-const useStore = create(set => ({
+type User = {
+    firstName: string;
+    lastName: string;
+    email: string;
+}
+
+
+type InitialState = {
+    username: string;
+    email: string;
+    changeUsername: (text: string) => void;
+    changeEmail: (text: string) => void;
+    users: User[];
+    addUser: (user: User) => void;
+}
+
+const useStore = create<InitialState>(set => ({
     username: "",
-    changeUsername: (text: string) => set(state => ({username: text})),
+    changeUsername: (text: string) => set(() => ({username: text})),
+    email: "",
+    changeEmail: (text: string) => set(() => ({email: text})),
+    users: [],
+    addUser: (user: User) => set((state) => ({users: [...state.users, user]}))
 }))
 
 const Home: NextPage = () => {
-    const { changeUsername, username } = useStore();
+    console.log(useStore());
+    const { changeUsername, username, email, changeEmail, addUser } = useStore();
 
     return (
         <div className="container mx-auto mt-4">
@@ -23,7 +43,10 @@ const Home: NextPage = () => {
                         </label>
                     </div>
                     <div className="md:w-2/3">
-                        <TextInput onChangeFunc={changeUsername} inputValue={username}/>
+                        <TextInput placeholder="username" onChangeFunc={changeUsername} inputValue={username}/>
+                        <p>U {username}</p>
+                        <TextInput placeholder="email" onChangeFunc={changeEmail} inputValue={email}/>
+                        <p>E {email}</p>
                     </div>
                 </div>
                 <div className="md:flex md:items-center mb-6">
@@ -38,8 +61,8 @@ const Home: NextPage = () => {
                 <div className="md:flex md:items-center">
                     <div className="md:w-1/3"></div>
                     <div className="md:w-2/3">
-                        <PrimaryButton onClick={() => console.log(username)}>
-                            Add todo
+                        <PrimaryButton onClick={() => addUser({firstName: username, lastName: "Jorgensen", email: email})}>
+                            Add user
                         </PrimaryButton>
                     </div>
                 </div>
